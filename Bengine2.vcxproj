@@ -151,9 +151,42 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Camera.cpp" />
+    <ClCompile Include="EBO.cpp" />
     <ClCompile Include="glad.c" />
+    <ClCompile Include="InputManager.cpp" />
     <ClCompile Include="Main.cpp" />
+    <ClCompile Include="Mesh.cpp" />
+    <ClCompile Include="Model.cpp" />
+    <ClCompile Include="Shader.cpp" />
     <ClCompile Include="stb.cpp" />
+    <ClCompile Include="Texture.cpp" />
+    <ClCompile Include="VAO.cpp" />
+    <ClCompile Include="VBO.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Camera.h" />
+    <ClInclude Include="EBO.h" />
+    <ClInclude Include="InputManager.h" />
+    <ClInclude Include="Mesh.h" />
+    <ClInclude Include="Model.h" />
+    <ClInclude Include="Shader.h" />
+    <ClInclude Include="Texture.h" />
+    <ClInclude Include="VAO.h" />
+    <ClInclude Include="VBO.h" />
+    <ClInclude Include="Vertex.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="basic.frag" />
+    <None Include="basic.vert" />
+    <None Include="cube.frag" />
+    <None Include="cube.vert" />
+    <None Include="lightSource.frag" />
+    <None Include="lightSource.vert" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="container_diffuse.png" />
+    <Image Include="container_specular.png" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
