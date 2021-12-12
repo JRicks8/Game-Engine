@@ -112,6 +112,7 @@ std::vector<Texture> Model::LoadMaterialTextures(aiMaterial* mat, aiTextureType 
 		{
 			Texture	texture(str.C_Str(), i);
 			textures.push_back(texture);
+			texturesLoaded.push_back(texture);
 		}
 	}
 	return textures;
