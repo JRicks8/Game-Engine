@@ -16,12 +16,8 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
-#include "VAO.h"
-#include "EBO.h"
-#include "Shader.h"
-#include "Vertex.h"
-#include "Texture.h"
 #include "InputManager.h"
+#include "Model.h"
 
 int windowWidth = 1280;
 int windowHeight = 720;
@@ -171,14 +167,15 @@ int main()
 	cubeShader.Use();
 	cubeShader.SetInt("material.diffuse", 0);
 	cubeShader.SetInt("material.specular", 1);
-	Texture containerTex("container_diffuse.png", 0);
-	Texture containerSpec("container_specular.png", 1);
 
 	// Camera
 	Camera camera;
 
 	// Input Manager
 	InputManager inputManager;
+
+	// Models
+	Model scene("Models/scene/scene.gltf");
 
 	// etc setup
 	double lastTime = 0.0; // for delta time
@@ -200,10 +197,6 @@ int main()
 		glClearColor(0.1f, 0.1f, 0.2f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE); // Render wireframe
-
-		glm::mat4 proj = glm::perspective(camera.fov, aspectRatio(), camera.nearClip, camera.farClip);
-		glm::mat4 view = glm::lookAt(camera.position, camera.position + camera.front, camera.up);
-		glm::mat4 model = glm::mat4(1.0f);
 
 		// draw cube
 		cubevao.Bind();
@@ -247,22 +240,13 @@ int main()
 		cubeShader.SetFloat("pointLights[3].linear", 0.09f);
 		cubeShader.SetFloat("pointLights[3].quadratic", 0.032f);
 
+		glm::mat4 proj = glm::perspective(camera.fov, aspectRatio(), camera.nearClip, camera.farClip);
+		glm::mat4 view = glm::lookAt(camera.position, camera.position + camera.front, camera.up);
+		glm::mat4 model = glm::mat4(1.0f);
 		cubeShader.SetMat4("proj", proj);
 		cubeShader.SetMat4("view", view);
 
-		containerTex.Bind();
-		containerSpec.Bind();
-
-		for (unsigned int i = 0; i < 10; i++)
-		{
-			model = glm::mat4(1.0f);
-			model = glm::translate(model, cubePositions[i]);
-			float angle = 20.0f * i;
-			model = glm::rotate(model, glm::radians(angle), glm::vec3(1.0f, 0.3f, 0.5f));
-			cubeShader.SetMat4("model", model);
-
-			glDrawArrays(GL_TRIANGLES, 0, 36);
-		}
+		scene.Draw(cubeShader);
 
 		// draw light source
 		lightSourceShader.Use();

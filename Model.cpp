@@ -11,23 +11,24 @@ void Model::LoadModel(const std::string& filepath)
 	Assimp::Importer importer;
 	const aiScene* scene = importer.ReadFile(filepath, aiProcess_Triangulate | aiProcess_FlipUVs);
 
-	if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || scene->mRootNode)
+	if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode)
 	{
 		std::cout << "ERROR::ASSIMP::" << importer.GetErrorString() << std::endl;
 		return;
 	}
-	directory = filepath.substr(0, filepath.find_last_of('/'));
-
+	directory = filepath.substr(0, filepath.find_last_of('/') + 1);
 	ProcessNode(scene->mRootNode, scene);
 }
 
 void Model::ProcessNode(aiNode* node, const aiScene* scene)
 {
+	aiMatrix4x4 m = node->mTransformation;
+
 	// process node meshes
 	for (unsigned int i = 0; i < node->mNumMeshes; i++)
 	{
-		aiMesh* mesh = scene->mMeshes[node->mMeshes[i]];
-		meshes.push_back(ProcessMesh(mesh, scene));
+		aiMesh* aimesh = scene->mMeshes[node->mMeshes[i]];
+		meshes.push_back(ProcessMesh(aimesh, scene, m));
 	}
 	// recursive calls for children nodes
 	for (unsigned int i = 0; i < node->mNumChildren; i++)
@@ -36,7 +37,7 @@ void Model::ProcessNode(aiNode* node, const aiScene* scene)
 	}
 }
 
-Mesh Model::ProcessMesh(aiMesh* mesh, const aiScene* scene)
+Mesh Model::ProcessMesh(aiMesh* mesh, const aiScene* scene, aiMatrix4x4 transform)
 {
 	std::vector<Vertex> vertices;
 	std::vector<unsigned int> indices;
@@ -88,7 +89,21 @@ Mesh Model::ProcessMesh(aiMesh* mesh, const aiScene* scene)
 		textures.insert(textures.end(), specularMaps.begin(), specularMaps.end());
 	}
 
-	return Mesh(vertices, indices, textures);
+	Mesh m(vertices, indices, textures);
+
+	// process transformation
+	transform.Transpose();
+
+	float data[16];
+	memcpy(data, &transform, sizeof(float) * 16);
+
+	glm::mat4 trans = glm::mat4(data[0],  data[1],  data[2],  data[3],
+								data[4],  data[5],  data[6],  data[7],
+								data[8],  data[9],  data[10], data[11],
+								data[12], data[13], data[14], data[15]);
+	m.transformMat = trans;
+
+	return m;
 }
 
 std::vector<Texture> Model::LoadMaterialTextures(aiMaterial* mat, aiTextureType type, std::string typeName)
@@ -101,7 +116,7 @@ std::vector<Texture> Model::LoadMaterialTextures(aiMaterial* mat, aiTextureType 
 		bool skip = false;
 		for (unsigned int j = 0; j < texturesLoaded.size(); j++)
 		{
-			if (std::strcmp(texturesLoaded[j].filepath.data(), str.C_Str()) == 0)
+			if (std::strcmp(texturesLoaded[j].filepath.data(), (directory + str.C_Str()).c_str()) == 0)
 			{
 				textures.push_back(texturesLoaded[j]);
 				skip = true;
@@ -110,7 +125,8 @@ std::vector<Texture> Model::LoadMaterialTextures(aiMaterial* mat, aiTextureType 
 		}
 		if (!skip)
 		{
-			Texture	texture(str.C_Str(), i);
+			std::string path = (directory + str.C_Str()).c_str();
+			Texture	texture(path, i);
 			textures.push_back(texture);
 			texturesLoaded.push_back(texture);
 		}

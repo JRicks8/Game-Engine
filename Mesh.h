@@ -17,6 +17,8 @@ public:
 	std::vector<GLuint> indices;
 	std::vector<Texture> textures;
 
+	glm::mat4 transformMat = glm::mat4(1.0f);
+
 	Mesh(std::vector<Vertex> vertices, std::vector<GLuint> indices, std::vector<Texture> textures);
 	
 	void Draw(Shader& shader);

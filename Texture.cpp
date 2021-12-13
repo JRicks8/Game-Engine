@@ -14,8 +14,7 @@ void Texture::Initialize(const std::string& filepath, GLuint slot)
 	Texture::filepath = filepath;
 
 	// find texture type
-	std::cout << filepath << std::endl;
-	if (filepath.find("diffuse") != std::string::npos)
+	if (filepath.find("diffuse") != std::string::npos || filepath.find("baseColor") != std::string::npos)
 		type = "diffuse";
 	else if (filepath.find("specular") != std::string::npos)
 		type = "specular";
@@ -29,8 +28,8 @@ void Texture::Initialize(const std::string& filepath, GLuint slot)
 	// image settings
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST_MIPMAP_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	// image to data variable using stb
 	unsigned char* data = stbi_load(filepath.c_str(), &width, &height, &numColChannels, 0);
 

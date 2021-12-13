@@ -28,6 +28,10 @@ void Mesh::Draw(Shader& shader)
 		shader.SetFloat(("material.texture_" + type + number).c_str(), i);
 		textures[i].Bind();
 	}
+
+	// set model matrix
+	shader.SetMat4("model", transformMat);
+
 	glActiveTexture(GL_TEXTURE0);
 
 	vao.Bind();
