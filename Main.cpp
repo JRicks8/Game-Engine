@@ -18,6 +18,8 @@
 
 #include "InputManager.h"
 #include "Model.h"
+#include "Light.h"
+#include "Color.h"
 
 int windowWidth = 1280;
 int windowHeight = 720;
@@ -25,89 +27,8 @@ float aspectRatio() { return (float)windowWidth / (float)windowHeight; }
 
 void Framebuffer_size_callback(GLFWwindow* window, int width, int height);
 
-float cubeVerts[] = {
-	// positions          // normals           // texture coords
-	-0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  0.0f, 0.0f,
-	 0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  1.0f, 0.0f,
-	 0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  1.0f, 1.0f,
-	 0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  1.0f, 1.0f,
-	-0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  0.0f, 1.0f,
-	-0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  0.0f, 0.0f,
-
-	-0.5f, -0.5f,  0.5f,  0.0f,  0.0f, 1.0f,   0.0f, 0.0f,
-	 0.5f, -0.5f,  0.5f,  0.0f,  0.0f, 1.0f,   1.0f, 0.0f,
-	 0.5f,  0.5f,  0.5f,  0.0f,  0.0f, 1.0f,   1.0f, 1.0f,
-	 0.5f,  0.5f,  0.5f,  0.0f,  0.0f, 1.0f,   1.0f, 1.0f,
-	-0.5f,  0.5f,  0.5f,  0.0f,  0.0f, 1.0f,   0.0f, 1.0f,
-	-0.5f, -0.5f,  0.5f,  0.0f,  0.0f, 1.0f,   0.0f, 0.0f,
-
-	-0.5f,  0.5f,  0.5f, -1.0f,  0.0f,  0.0f,  1.0f, 0.0f,
-	-0.5f,  0.5f, -0.5f, -1.0f,  0.0f,  0.0f,  1.0f, 1.0f,
-	-0.5f, -0.5f, -0.5f, -1.0f,  0.0f,  0.0f,  0.0f, 1.0f,
-	-0.5f, -0.5f, -0.5f, -1.0f,  0.0f,  0.0f,  0.0f, 1.0f,
-	-0.5f, -0.5f,  0.5f, -1.0f,  0.0f,  0.0f,  0.0f, 0.0f,
-	-0.5f,  0.5f,  0.5f, -1.0f,  0.0f,  0.0f,  1.0f, 0.0f,
-
-	 0.5f,  0.5f,  0.5f,  1.0f,  0.0f,  0.0f,  1.0f, 0.0f,
-	 0.5f,  0.5f, -0.5f,  1.0f,  0.0f,  0.0f,  1.0f, 1.0f,
-	 0.5f, -0.5f, -0.5f,  1.0f,  0.0f,  0.0f,  0.0f, 1.0f,
-	 0.5f, -0.5f, -0.5f,  1.0f,  0.0f,  0.0f,  0.0f, 1.0f,
-	 0.5f, -0.5f,  0.5f,  1.0f,  0.0f,  0.0f,  0.0f, 0.0f,
-	 0.5f,  0.5f,  0.5f,  1.0f,  0.0f,  0.0f,  1.0f, 0.0f,
-
-	-0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,  0.0f, 1.0f,
-	 0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,  1.0f, 1.0f,
-	 0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,  1.0f, 0.0f,
-	 0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,  1.0f, 0.0f,
-	-0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,  0.0f, 0.0f,
-	-0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,  0.0f, 1.0f,
-
-	-0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,  0.0f, 1.0f,
-	 0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,  1.0f, 1.0f,
-	 0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,  1.0f, 0.0f,
-	 0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,  1.0f, 0.0f,
-	-0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,  0.0f, 0.0f,
-	-0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,  0.0f, 1.0f
-};
-
-glm::vec3 cubePositions[] = {
-	glm::vec3(0.0f,  0.0f,  0.0f),
-	glm::vec3(2.0f,  5.0f, -15.0f),
-	glm::vec3(-1.5f, -2.2f, -2.5f),
-	glm::vec3(-3.8f, -2.0f, -12.3f),
-	glm::vec3(2.4f, -0.4f, -3.5f),
-	glm::vec3(-1.7f,  3.0f, -7.5f),
-	glm::vec3(1.3f, -2.0f, -2.5f),
-	glm::vec3(1.5f,  2.0f, -2.5f),
-	glm::vec3(1.5f,  0.2f, -1.5f),
-	glm::vec3(-1.3f,  1.0f, -1.5f)
-};
-
-glm::vec3 pointLightPositions[] = {
-	glm::vec3(0.7f,  0.2f,  2.0f),
-	glm::vec3(2.3f, -3.3f, -4.0f),
-	glm::vec3(-4.0f,  2.0f, -12.0f),
-	glm::vec3(0.0f,  0.0f, -3.0f)
-};
-
-std::vector<Vertex> cubeVertices;
-
 int main()
 {
-	for (unsigned int i = 0; i < sizeof(cubeVerts) / sizeof(GLfloat); i)
-	{
-		Vertex vert;
-		vert.position.x = cubeVerts[i++];
-		vert.position.y = cubeVerts[i++];
-		vert.position.z = cubeVerts[i++];
-		vert.normals.x = cubeVerts[i++];
-		vert.normals.y = cubeVerts[i++];
-		vert.normals.z = cubeVerts[i++];
-		vert.UVs.x = cubeVerts[i++];
-		vert.UVs.y = cubeVerts[i++];
-		cubeVertices.push_back(vert);
-	}
-
 	// GLFW & window init
 	glfwInit();
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
@@ -135,24 +56,7 @@ int main()
 	glViewport(0, 0, windowWidth, windowHeight);
 	glfwSetFramebufferSizeCallback(window, Framebuffer_size_callback);
 	glEnable(GL_DEPTH_TEST);
-
-	VAO cubevao;
-	VBO cubevbo(cubeVertices);
-	cubevao.Bind();
-	cubevbo.Bind();
-	cubevao.LinkAttrib(cubevbo, 0, 3, GL_FLOAT, sizeof(Vertex), (void*)0); // position
-	cubevao.LinkAttrib(cubevbo, 1, 3, GL_FLOAT, sizeof(Vertex), (void*)(3 * sizeof(float)));
-	cubevao.LinkAttrib(cubevbo, 2, 2, GL_FLOAT, sizeof(Vertex), (void*)(6 * sizeof(float)));
-	cubevao.Unbind();
-	cubevbo.Unbind();
-
-	VAO lightSourcevao;
-	VBO lightSourcevbo(cubeVertices);
-	lightSourcevao.Bind();
-	lightSourcevbo.Bind();
-	lightSourcevao.LinkAttrib(lightSourcevbo, 0, 3, GL_FLOAT, sizeof(Vertex), (void*)0);
-	lightSourcevao.Unbind();
-	lightSourcevbo.Unbind();
+	glEnable(GL_CULL_FACE);
 
 	// Shaders
 	std::string vertFilepath = "cube.vert";
@@ -177,10 +81,18 @@ int main()
 	// Models
 	Model scene("Models/scene/scene.gltf");
 
+	// lights
+	DirLight dirLight;
+	dirLight.direction = glm::vec3(-0.2f, -1.0f, -0.3f);
+	dirLight.ambient = glm::vec3(0.1f, 0.1f, 0.1f);
+	dirLight.diffuse = glm::vec3(0.5f, 0.5f, 0.5f);
+	dirLight.specular = glm::vec3(1.0f, 1.0f, 1.0f);
+
 	// etc setup
 	double lastTime = 0.0; // for delta time
 	double deltaTime = 0.0;
 
+	
 	glm::vec3 lightPos(1.2f, 1.0f, 2.0f);
 
 	do
@@ -198,75 +110,25 @@ int main()
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE); // Render wireframe
 
-		// draw cube
-		cubevao.Bind();
-		cubevbo.Bind();
+		// lights
 		cubeShader.Use();
 
+		SendLightInfo(dirLight, cubeShader);
+
 		cubeShader.SetVec3("viewPos", camera.position.x, camera.position.y, camera.position.z);
-		cubeShader.SetVec3("material.diffuse", 1.0f, 0.5f, 0.31f);
-		cubeShader.SetVec3("material.specular", 0.5f, 0.5f, 0.5f);
+
+		// default material values (When maps are not applied)
+		cubeShader.SetVec3("material.diffuse", Color::purpleLight);
+		cubeShader.SetVec3("material.specular", Color::gray);
 		cubeShader.SetFloat("material.shininess", 32.0f);
-
-		cubeShader.SetVec3("pointLights[0].position", pointLightPositions[0]);
-		cubeShader.SetVec3("pointLights[0].ambient", 0.2f, 0.2f, 0.2f);
-		cubeShader.SetVec3("pointLights[0].diffuse", 0.5f, 0.5f, 0.5f); // darken diffuse light a bit
-		cubeShader.SetVec3("pointLights[0].specular", 1.0f, 1.0f, 1.0f);
-		cubeShader.SetFloat("pointLights[0].constant", 1.0f);
-		cubeShader.SetFloat("pointLights[0].linear", 0.09f);
-		cubeShader.SetFloat("pointLights[0].quadratic", 0.032f);
-
-		cubeShader.SetVec3("pointLights[1].position", pointLightPositions[1]);
-		cubeShader.SetVec3("pointLights[1].ambient", 0.2f, 0.2f, 0.2f);
-		cubeShader.SetVec3("pointLights[1].diffuse", 0.5f, 0.5f, 0.5f); // darken diffuse light a bit
-		cubeShader.SetVec3("pointLights[1].specular", 1.0f, 1.0f, 1.0f);
-		cubeShader.SetFloat("pointLights[1].constant", 1.0f);
-		cubeShader.SetFloat("pointLights[1].linear", 0.09f);
-		cubeShader.SetFloat("pointLights[1].quadratic", 0.032f);
-
-		cubeShader.SetVec3("pointLights[2].position", pointLightPositions[2]);
-		cubeShader.SetVec3("pointLights[2].ambient", 0.2f, 0.2f, 0.2f);
-		cubeShader.SetVec3("pointLights[2].diffuse", 0.5f, 0.5f, 0.5f); // darken diffuse light a bit
-		cubeShader.SetVec3("pointLights[2].specular", 1.0f, 1.0f, 1.0f);
-		cubeShader.SetFloat("pointLights[2].constant", 1.0f);
-		cubeShader.SetFloat("pointLights[2].linear", 0.09f);
-		cubeShader.SetFloat("pointLights[2].quadratic", 0.032f);
-
-		cubeShader.SetVec3("pointLights[3].position", pointLightPositions[3]);
-		cubeShader.SetVec3("pointLights[3].ambient", 0.2f, 0.2f, 0.2f);
-		cubeShader.SetVec3("pointLights[3].diffuse", 0.5f, 0.5f, 0.5f); // darken diffuse light a bit
-		cubeShader.SetVec3("pointLights[3].specular", 1.0f, 1.0f, 1.0f);
-		cubeShader.SetFloat("pointLights[3].constant", 1.0f);
-		cubeShader.SetFloat("pointLights[3].linear", 0.09f);
-		cubeShader.SetFloat("pointLights[3].quadratic", 0.032f);
 
 		glm::mat4 proj = glm::perspective(camera.fov, aspectRatio(), camera.nearClip, camera.farClip);
 		glm::mat4 view = glm::lookAt(camera.position, camera.position + camera.front, camera.up);
-		glm::mat4 model = glm::mat4(1.0f);
 		cubeShader.SetMat4("proj", proj);
 		cubeShader.SetMat4("view", view);
 
+		// model matrix set in draw functions
 		scene.Draw(cubeShader);
-
-		// draw light source
-		lightSourceShader.Use();
-		cubevbo.Bind();
-
-		lightSourceShader.SetMat4("view", view);
-		lightSourceShader.SetMat4("proj", proj);
-
-		for (int i = 0; i < 4; i++)
-		{
-			model = glm::mat4(1.0f);
-			model = glm::translate(model, pointLightPositions[i]);
-			model = glm::scale(model, glm::vec3(0.2f));
-
-			lightSourceShader.SetMat4("model", model);
-
-
-
-			glDrawArrays(GL_TRIANGLES, 0, 36);
-		}
 
 		// Swap buffers & poll events
 		glfwSwapBuffers(window);

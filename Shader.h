@@ -32,6 +32,7 @@ public:
 	void SetVec2(const std::string& name, glm::vec2 v) const;
 	void SetVec3(const std::string& name, GLfloat v0, GLfloat v1, GLfloat v2) const;
 	void SetVec3(const std::string& name, glm::vec3 v) const;
+	void SetVec3(const std::string& name, glm::vec4 v) const; // sends the first 3 values of the vec4
 	void SetVec4(const std::string& name, GLfloat v0, GLfloat v1, GLfloat v2, GLfloat v3) const;
 	void SetVec4(const std::string& name, glm::vec4 v) const;
 };

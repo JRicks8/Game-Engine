@@ -94,5 +94,9 @@ vec3 CalculatePointLight(PointLight light, vec3 normal, vec3 fragPos, vec3 viewD
     ambient  *= attenuation;
     diffuse  *= attenuation;
     specular *= attenuation;
+	// make sure that when receiving no values (no light) we don't send negative values
+	ambient = vec3(max(ambient.x, 0.0), max(ambient.y, 0.0), max(ambient.z, 0.0));
+	diffuse = vec3(max(diffuse.x, 0.0), max(diffuse.y, 0.0), max(diffuse.z, 0.0));
+	specular = vec3(max(specular.x, 0.0), max(specular.y, 0.0), max(specular.z, 0.0));
     return (ambient + diffuse + specular);
 }

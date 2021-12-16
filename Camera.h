@@ -12,7 +12,7 @@ public:
 	glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f);
 	glm::vec3 worldUp = glm::vec3(0.0f, 1.0f, 0.0f);
 
-	float speed = 2.5f;
+	float speed = 20.0f;
 	float pitch = 0.0f;
 	float yaw = -90.0f;
 	float mouseSensitivity = 0.1f;
