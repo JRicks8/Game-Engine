@@ -1,9 +1,14 @@
 #include "Model.h"
 
-void Model::Draw(Shader& shader)
+void Model::Draw(Shader& shader, glm::vec3 t, glm::vec3 s)
 {
 	for (unsigned int i = 0; i < meshes.size(); i++)
-		meshes[i].Draw(shader);
+		meshes[i].Draw(shader, t, s);
+}
+
+Mesh* Model::GetMesh(int indMesh)
+{
+	return &meshes[indMesh];
 }
 
 void Model::LoadModel(const std::string& filepath)
@@ -28,7 +33,7 @@ void Model::ProcessNode(aiNode* node, const aiScene* scene)
 	for (unsigned int i = 0; i < node->mNumMeshes; i++)
 	{
 		aiMesh* aimesh = scene->mMeshes[node->mMeshes[i]];
-		meshes.push_back(ProcessMesh(aimesh, scene, m));
+		meshes.push_back(ProcessMesh(aimesh, scene, m, node->mName.data));
 	}
 	// recursive calls for children nodes
 	for (unsigned int i = 0; i < node->mNumChildren; i++)
@@ -37,7 +42,7 @@ void Model::ProcessNode(aiNode* node, const aiScene* scene)
 	}
 }
 
-Mesh Model::ProcessMesh(aiMesh* mesh, const aiScene* scene, aiMatrix4x4 transform)
+Mesh Model::ProcessMesh(aiMesh* mesh, const aiScene* scene, aiMatrix4x4 transform, std::string meshName)
 {
 	std::vector<Vertex> vertices;
 	std::vector<unsigned int> indices;
@@ -46,9 +51,9 @@ Mesh Model::ProcessMesh(aiMesh* mesh, const aiScene* scene, aiMatrix4x4 transfor
 	// vertices
 	for (unsigned int i = 0; i < mesh->mNumVertices; i++)
 	{
-		Vertex vertex;
+		Vertex vertex{};
 
-		glm::vec3 vec3;
+		glm::vec3 vec3{};
 		vec3.x = mesh->mVertices[i].x;
 		vec3.y = mesh->mVertices[i].y;
 		vec3.z = mesh->mVertices[i].z;
@@ -59,7 +64,7 @@ Mesh Model::ProcessMesh(aiMesh* mesh, const aiScene* scene, aiMatrix4x4 transfor
 		vertex.normals = vec3;
 		if (mesh->mTextureCoords[0])
 		{
-			glm::vec2 vec2;
+			glm::vec2 vec2{};
 			vec2.x = mesh->mTextureCoords[0][i].x;
 			vec2.y = mesh->mTextureCoords[0][i].y;
 			vertex.UVs = vec2;
@@ -84,26 +89,35 @@ Mesh Model::ProcessMesh(aiMesh* mesh, const aiScene* scene, aiMatrix4x4 transfor
 		aiMaterial* material = scene->mMaterials[mesh->mMaterialIndex];
 		std::vector<Texture> diffuseMaps = LoadMaterialTextures(material, aiTextureType_DIFFUSE, "diffuse");
 		textures.insert(textures.end(), diffuseMaps.begin(), diffuseMaps.end());
-		
+
 		std::vector<Texture> specularMaps = LoadMaterialTextures(material, aiTextureType_SPECULAR, "specular");
 		textures.insert(textures.end(), specularMaps.begin(), specularMaps.end());
 	}
 
 	Mesh m(vertices, indices, textures);
 
-	// process transformation
-	transform.Transpose();
+	// Name the mesh
+	m.name = meshName;
 
+	// process transformation
 	float data[16];
 	memcpy(data, &transform, sizeof(float) * 16);
 
-	glm::mat4 trans = glm::mat4(data[0],  data[1],  data[2],  data[3],
-								data[4],  data[5],  data[6],  data[7],
-								data[8],  data[9],  data[10], data[11],
-								data[12], data[13], data[14], data[15]);
-	m.transformMat = trans;
+	glm::mat4 matrix = glm::mat4(data[0], data[1], data[2], data[3],
+								 data[4], data[5], data[6], data[7],
+								 data[8], data[9], data[10], data[11],
+								 data[12], data[13], data[14], data[15]);
+	m.SetPosition(glm::vec3(data[3], data[7], data[11]));
 
-	return m;
+	glm::float32 scaleFactor = glm::pow(data[0] * data[5] * data[10], 1.0f / 3.0f);
+	m.SetScale(glm::vec3(scaleFactor));
+
+	// 1 / sf * 3x3RotMat
+	m.SetRotation((glm::float32(1.0f) / scaleFactor) * glm::mat3(data[0], data[1], data[2],
+																 data[4], data[5], data[6],
+																 data[8], data[9], data[10]));
+	
+	return m;						  
 }
 
 std::vector<Texture> Model::LoadMaterialTextures(aiMaterial* mat, aiTextureType type, std::string typeName)

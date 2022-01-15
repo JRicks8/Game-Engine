@@ -19,6 +19,12 @@ void VBO::BufferData(std::vector<Vertex>& vertices)
 	glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(Vertex), vertices.data(), GL_STATIC_DRAW);
 }
 
+void VBO::BufferData(Vertex vertices[]) 
+{
+	glBindBuffer(GL_ARRAY_BUFFER, id);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), &vertices, GL_STATIC_DRAW);
+}
+
 void VBO::Bind()
 {
 	glBindBuffer(GL_ARRAY_BUFFER, id);

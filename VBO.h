@@ -15,6 +15,7 @@ public:
 	VBO();
 
 	void BufferData(std::vector<Vertex>& vertices);
+	void BufferData(Vertex vertices[]);
 	void Bind();
 	void Unbind();
 };

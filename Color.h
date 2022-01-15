@@ -1,4 +1,5 @@
-#pragma once
+#ifndef COLOR_H
+#define COLOR_H
 
 #include <glm/glm.hpp>
 
@@ -71,3 +72,4 @@ public:
 	static const glm::vec4 black;
 	static const glm::vec4 blackIvory;
 };
+#endif

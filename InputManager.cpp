@@ -26,8 +26,8 @@ void InputManager::ProcessInputs(GLFWwindow* window, Camera& camera, double delt
 
         int width, height;
         glfwGetWindowSize(window, &width, &height);
-        float midx = width / 2;
-        float midy = height / 2;
+        float midx = (float)width / 2;
+        float midy = (float)height / 2;
 
         if (firstClick)
         {
