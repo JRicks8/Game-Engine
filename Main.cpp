@@ -89,24 +89,25 @@ int main()
 	
 	// RigidBodies & Constraints
 	// Static
-	house->physBody.convex = false;
-	house->GeneratePhysBody(0.0f);
-	physicsManager.dynamicsWorld->addRigidBody(house->physBody.body);
+	house->GeneratePhysBody(false, 0.0f);
+	physicsManager.dynamicsWorld->addRigidBody(house->physBody->body);
 
-	roof->physBody.convex = false;
-	roof->GeneratePhysBody(0.0f);
-	physicsManager.dynamicsWorld->addRigidBody(roof->physBody.body);
+	roof->GeneratePhysBody(false, 0.0f);
+	physicsManager.dynamicsWorld->addRigidBody(roof->physBody->body);
 
-	ground->physBody.convex = false;
-	ground->GeneratePhysBody(0.0f);
-	physicsManager.dynamicsWorld->addRigidBody(ground->physBody.body);
+	ground->GeneratePhysBody(false, 0.0f);
+	physicsManager.dynamicsWorld->addRigidBody(ground->physBody->body);
 
 	// Kinematic
+	PhysicsBody* cameraBody = new PhysicsBody(true, 0.0f);
+	cameraBody->shape = new btSphereShape(3.0);
+	cameraBody->GenerateBodyWithMass(0.0f, btVector3(camera.position.x, camera.position.y, camera.position.z), btQuaternion::getIdentity(), &camera);
+	physicsManager.dynamicsWorld->addRigidBody(cameraBody->body);
 
 	// Dynamic
-	cube->GeneratePhysBody(1.0f);
-	physicsManager.dynamicsWorld->addRigidBody(cube->physBody.body);
-	cube->physBody.body->setRestitution(0.0);
+	cube->GeneratePhysBody(true, 1.0f, new btBoxShape(btVector3(1.0, 1.0, 1.0)));
+	physicsManager.dynamicsWorld->addRigidBody(cube->physBody->body);
+	cube->physBody->body->setRestitution(0.2);
 
 	// lights
 	DirLight dirLight{};
@@ -127,7 +128,9 @@ int main()
 
 		// Operations
 		inputManager.ProcessInputs(window, camera, deltaTime);
+		camera.CameraOperations(deltaTime, window); // free cam
 		camera.UpdateDirection();
+		cameraBody->body->setWorldTransform(btTransform(btQuaternion::getIdentity(), btVector3(camera.position.x, camera.position.y, camera.position.z)));
 
 		// Physics Tick
 		physicsManager.dynamicsWorld->stepSimulation(deltaTime);
@@ -164,9 +167,9 @@ int main()
 		if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_RIGHT) == GLFW_PRESS) 
 		{
 			btTransform trans = btTransform(btQuaternion(0.0f, 0.0f, 0.0f, 1.0f), btVector3(camera.position.x, camera.position.y, camera.position.z));
-			cube->physBody.body->setWorldTransform(trans);
-			cube->physBody.body->setLinearVelocity(btVector3(0.0f, 0.0f, 0.0f));
-			cube->physBody.body->activate();
+			cube->physBody->body->setWorldTransform(trans);
+			cube->physBody->body->setLinearVelocity(btVector3(0.0f, 0.0f, 0.0f));
+			cube->physBody->body->activate();
 		}
 
 	} while (!glfwWindowShouldClose(window));

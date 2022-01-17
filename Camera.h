@@ -21,8 +21,13 @@ public:
 	float farClip = 1000.0f;
 
 	bool firstClick = true;
+	bool locked = false;
 
 	void UpdateDirection();
+	void UpdateMouseLook(float xoffset, float yoffset);
+	void CameraOperations(double deltaTime, GLFWwindow* window);
+	void CameraOperations(glm::vec3 pos, glm::vec3 offset = glm::vec3(0.0f));
+	void CameraOperations(float p, float y, glm::vec3 pos, glm::vec3 offset = glm::vec3(0.0f));
 };
 
 #endif

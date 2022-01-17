@@ -49,22 +49,31 @@ void Mesh::Draw(Shader& shader, glm::vec3 t, glm::vec3 s)
 	glBindVertexArray(0); // unbind vao
 }
 
-void Mesh::GeneratePhysBody(float mass)
+void Mesh::GeneratePhysBody(bool convex, float mass)
 {
 	hasPhysicsBody = true;
-	physBody.GenerateShape(vertices, indices, scale.x);
-	physBody.GenerateBodyWithMass(mass, btVector3(position.x, position.y, position.z), btQuaternion(rotation.x, rotation.y, rotation.z, rotation.w), this);
+	physBody = new PhysicsBody(convex, mass);
+	physBody->GenerateShape(vertices, indices, scale.x);
+	physBody->GenerateBodyWithMass(mass, btVector3(position.x, position.y, position.z), btQuaternion(rotation.x, rotation.y, rotation.z, rotation.w), this);
+}
+
+void Mesh::GeneratePhysBody(bool convex, float mass, btCollisionShape* shape)
+{
+	hasPhysicsBody = true;
+	physBody = new PhysicsBody(convex, mass);
+	physBody->shape = shape;
+	physBody->GenerateBodyWithMass(mass, btVector3(position.x, position.y, position.z), btQuaternion(rotation.x, rotation.y, rotation.z, rotation.w), this);
 }
 
 void Mesh::SyncRigidBody()
 {
-	position = glm::vec3(physBody.body->getWorldTransform().getOrigin().x(),
-						 physBody.body->getWorldTransform().getOrigin().y(),
-						 physBody.body->getWorldTransform().getOrigin().z());
-	rotation = glm::quat(physBody.body->getWorldTransform().getRotation().x(),
-						 physBody.body->getWorldTransform().getRotation().y(),
-						 physBody.body->getWorldTransform().getRotation().z(),
-						 physBody.body->getWorldTransform().getRotation().w());
+	position = glm::vec3(physBody->body->getWorldTransform().getOrigin().x(),
+						 physBody->body->getWorldTransform().getOrigin().y(),
+						 physBody->body->getWorldTransform().getOrigin().z());
+	rotation = glm::quat(physBody->body->getWorldTransform().getRotation().x(),
+						 physBody->body->getWorldTransform().getRotation().y(),
+						 physBody->body->getWorldTransform().getRotation().z(),
+						 physBody->body->getWorldTransform().getRotation().w());
 }
 
 void Mesh::SetPosition(glm::vec3 p)

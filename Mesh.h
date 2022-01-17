@@ -16,14 +16,15 @@ public:
 	std::string name;
 
 	bool hasPhysicsBody = false;
-	PhysicsBody physBody;
+	PhysicsBody* physBody;
 
 	float shininess = 32.0f;
 
 	Mesh(std::vector<Vertex> vertices, std::vector<GLuint> indices, std::vector<Texture> textures);
 	
 	void Draw(Shader& shader, glm::vec3 t = glm::vec3(0.0f), glm::vec3 s = glm::vec3(1.0f));
-	void GeneratePhysBody(float mass);
+	void GeneratePhysBody(bool convex, float mass);
+	void GeneratePhysBody(bool convex, float mass, btCollisionShape* shape);
 	void SyncRigidBody();
 
 	void SetPosition(glm::vec3 p);

@@ -1,13 +1,19 @@
 #include "PhysicsBody.h"
 
-void PhysicsBody::GenerateShape(std::vector<Vertex> verts, std::vector<GLuint> indices, float scale)
+PhysicsBody::PhysicsBody(bool convex, float mass)
+{
+	PhysicsBody::mass = mass;
+	PhysicsBody::convex = convex;
+}
+
+void PhysicsBody::GenerateShape(const std::vector<Vertex>& verts, const std::vector<GLuint>& indices, float scale)
 {
 	if (convex)
 	{
 		shape = new btConvexHullShape();
-		for (int i = 0; i < verts.size(); i++)
+		for (int i = 0; i < indices.size(); i++)
 		{
-			Vertex v = verts[i];
+			Vertex v = verts[indices[i]];
 			btVector3 btv = btVector3(v.position.x, v.position.y, v.position.z);
 			((btConvexHullShape*)shape)->addPoint(btv);
 		}
@@ -15,13 +21,10 @@ void PhysicsBody::GenerateShape(std::vector<Vertex> verts, std::vector<GLuint> i
 	else
 	{
 		btTriangleMesh* m = new btTriangleMesh();
-		for (unsigned int i = 0; i < verts.size(); i += 3) {
+		for (unsigned int i = 0; i < indices.size(); i += 3) {
 			Vertex v1 = verts[indices[i]];
 			Vertex v2 = verts[indices[i + 1]];
 			Vertex v3 = verts[indices[i + 2]];
-			//Vertex v1 = verts[i];
-			//Vertex v2 = verts[i + 1];
-			//Vertex v3 = verts[i + 2];
 
 			btVector3 bv1 = scale * btVector3(v1.position.x, v1.position.y, v1.position.z);
 			btVector3 bv2 = scale * btVector3(v2.position.x, v2.position.y, v2.position.z);
@@ -33,7 +36,7 @@ void PhysicsBody::GenerateShape(std::vector<Vertex> verts, std::vector<GLuint> i
 	}
 }
 
-void PhysicsBody::GenerateBodyWithMass(float mass, btVector3 pos, btQuaternion rot, void* parentPtr)
+btRigidBody* PhysicsBody::GenerateBodyWithMass(float mass, btVector3 pos, btQuaternion rot, void* parentPtr)
 {
 	btDefaultMotionState* motionState = new btDefaultMotionState(btTransform(rot, pos));
 
@@ -49,4 +52,7 @@ void PhysicsBody::GenerateBodyWithMass(float mass, btVector3 pos, btQuaternion r
 	body = new btRigidBody(bodyCI);
 	body->setUserPointer(parentPtr);
 	body->setLinearFactor(btVector3(1, 1, 1));
+	std::cout << body->getAngularSleepingThreshold() << '\n';
+	body->setSleepingThresholds(0.1, 1.0);
+	return body;
 }

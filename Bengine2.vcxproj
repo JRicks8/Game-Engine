@@ -396,6 +396,7 @@
   <ItemGroup>
     <ClInclude Include="Camera.h" />
     <ClInclude Include="Color.h" />
+    <ClInclude Include="CustomCollisionShapes.h" />
     <ClInclude Include="EBO.h" />
     <ClInclude Include="InputManager.h" />
     <ClInclude Include="Libraries\include\Bullet\btBulletCollisionCommon.h" />
